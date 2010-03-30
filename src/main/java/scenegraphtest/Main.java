@@ -5,11 +5,7 @@
 
 package scenegraphtest;
 
-import com.sun.scenario.scenegraph.JSGPanel;
-import com.sun.scenario.scenegraph.SGNode;
-import java.awt.Color;
 import java.awt.Dimension;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 /**
