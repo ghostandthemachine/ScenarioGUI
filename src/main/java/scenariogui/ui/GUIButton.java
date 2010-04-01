@@ -4,7 +4,9 @@
  */
 package scenariogui.ui;
 
+import com.sun.scenario.scenegraph.SGAbstractShape.Mode;
 import com.sun.scenario.scenegraph.SGGroup;
+import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
 import com.sun.scenario.scenegraph.fx.FXShape;
@@ -21,14 +23,14 @@ import scenariogui.Triangle;
  */
 public class GUIButton extends GUIComponent {
 
-    private FXShape triangle = new FXShape();
+    private FXShape indicator = new FXShape();
     private FXShape buttonShape = new FXShape();
     private Color fillColor = Color.lightGray;
     private Color onColor = Color.PINK;
     private String id;
     private boolean isOn = false;
-    private Color triangleOnColor = Color.white;
-    private Color triangleColor = Color.white;
+    private Color indicatorOnColor = Color.white;
+    private Color indicatorColor = Color.white;
 
     public GUIButton(double tx, double ty, double w, double h, String s) {
         super(tx, ty, w, h);
@@ -38,14 +40,6 @@ public class GUIButton extends GUIComponent {
         buttonShape.setMode(SGShape.Mode.FILL);
         buttonShape.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
         add(buttonShape);
-
-
-        triangle.setShape(createTriangle());
-        triangle.setFillPaint(triangleColor);
-        triangle.setMode(SGShape.Mode.FILL);
-        triangle.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
-
-        add(triangle);
 
     }
 
@@ -57,13 +51,13 @@ public class GUIButton extends GUIComponent {
         buttonShape.setFillPaint(onColor);
         isOn = true;
 
-        triangle.setFillPaint(triangleOnColor);
+        indicator.setFillPaint(indicatorOnColor);
     }
 
     public void setOff() {
         buttonShape.setFillPaint(fillColor);
         isOn = false;
-        triangle.setFillPaint(triangleColor);
+        indicator.setFillPaint(indicatorColor);
     }
 
     @Override
@@ -100,22 +94,24 @@ public class GUIButton extends GUIComponent {
         this.onColor = onColor;
     }
 
-    private Shape createTriangle() {
-        Point p1 = new Point((int) (5 + this.getX()), (int) (5 + this.getY()));
-        Point p2 = new Point((int) (this.getWidth() - 5 + this.getX()), (int) (this.getY() + this.getHeight() / 2));
-        Point p3 = new Point((int) (5 + this.getX()), (int) (this.getY() + this.getHeight() - 5));
 
-        Triangle triangle = new Triangle(p1, p2, p3);
 
-        return triangle;
+    public void addIndicator(SGNode node) {
+        indicator = (FXShape) node;
+        indicator.setFillPaint(indicatorColor);
+        indicator.setMode(SGShape.Mode.STROKE_FILL);
+        indicator.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
+        
+
+        this.addComponent(indicator);
     }
 
-    public void setTriangleOnColor(Color color) {
-        triangleOnColor = color;
+    public void setIndicatorOnColor(Color color) {
+        indicatorOnColor = color;
     }
 
-    public void setTriangleColor(Color color) {
-        triangleColor = color;
+    public void setIdicatorColor(Color color) {
+        indicatorColor = color;
     }
 }
 

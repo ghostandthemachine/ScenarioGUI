@@ -5,8 +5,10 @@
 package scenariogui.synth;
 
 import com.sun.scenario.scenegraph.SGText;
+import com.sun.scenario.scenegraph.fx.FXShape;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import scenariogui.Triangle;
@@ -20,6 +22,7 @@ import scenariogui.ui.SimpleDial;
  */
 public class SynthControl extends GUIComponent {
 
+    GUIButton trigger;
     SGText mainLabel = new SGText();
     ISynth synth;
     float[] args = {0f, 0f, 0f, 0f, 0f};
@@ -35,7 +38,7 @@ public class SynthControl extends GUIComponent {
         this.synth = synth;
         this.dials = new SimpleDial[numDials];
 
-        this.setBaseColor(new Color(100,100,100));
+        this.setBaseColor(new Color(100, 100, 100));
 
         createDials(numDials);
         createButtons();
@@ -45,7 +48,7 @@ public class SynthControl extends GUIComponent {
     }
 
     private void createDials(int numDials) {
-        ISynthParam[] params = synth.getParams();
+        ISynthParameter[] params = synth.getParams();
 
         for (int i = 0; i < numDials; i++) {
             String name = params[i].getName();
@@ -76,8 +79,7 @@ public class SynthControl extends GUIComponent {
         double ty = this.getY() + this.getHeight() - 26;
 
 
-        GUIButton trigger = new GUIButton(tx, ty, 20, 20, "trigger") {
-
+        trigger = new GUIButton(tx, ty, 20, 20, "trigger") {
 
             @Override
             public void clicked() {
@@ -92,8 +94,9 @@ public class SynthControl extends GUIComponent {
         };
         trigger.setBaseColor(Color.darkGray);
         trigger.setOnColor(Color.lightGray);
-        trigger.setTriangleOnColor(Color.green);
-        trigger.setTriangleColor(Color.white);
+        trigger.addIndicator(createTriangle());
+        trigger.setIndicatorOnColor(Color.green);
+        trigger.setIdicatorColor(Color.white);
 
         this.addComponent(trigger);
     }
@@ -102,7 +105,7 @@ public class SynthControl extends GUIComponent {
         mainLabel.setText(t);
 
         double tx = this.getX() + this.getWidth() - mainLabel.getBounds().getWidth();
-        double ty = this.getY() + this.getHeight() - mainLabel.getBounds().getHeight()/2;
+        double ty = this.getY() + this.getHeight() - mainLabel.getBounds().getHeight() / 2;
         mainLabel.setFont(new Font("helvetica", Font.BOLD, 20));
         mainLabel.setLocation(new Point2D.Double(tx, ty));
         mainLabel.setFillPaint(Color.white);
@@ -110,6 +113,15 @@ public class SynthControl extends GUIComponent {
         this.add(mainLabel);
     }
 
+    private FXShape createTriangle() {
+        FXShape triangle = new FXShape();
+        Point p1 = new Point((int) (5 + trigger.getX()),(int) (5 + trigger.getY()));
+        Point p2 = new Point((int) (trigger.getWidth() - 5 + trigger.getX()), (int) (trigger.getY() + trigger.getHeight() / 2));
+        Point p3 = new Point((int) (5 + trigger.getX()), (int) (trigger.getY() + trigger.getHeight() - 5));
 
+        Triangle tri = new Triangle(p1, p2, p3);
 
+        triangle.setShape(tri);
+        return triangle;
+    }
 }

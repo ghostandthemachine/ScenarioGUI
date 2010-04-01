@@ -8,7 +8,7 @@ package scenariogui.synth;
  *
  * @author Jon Rose
  */
-public class SynthParameter implements ISynthParam {
+public class SynthParameter implements ISynthParameter {
 
     String name;
     float start;

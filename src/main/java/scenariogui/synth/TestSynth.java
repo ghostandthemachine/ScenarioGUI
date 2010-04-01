@@ -23,7 +23,7 @@ public class TestSynth implements ISynth {
     };
 
     @Override
-    public ISynthParam[] getParams() {
+    public ISynthParameter[] getParams() {
         return params;
     }
 

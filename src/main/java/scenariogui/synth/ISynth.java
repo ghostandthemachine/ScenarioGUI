@@ -10,7 +10,7 @@ package scenariogui.synth;
  */
 public interface ISynth {
 
-    ISynthParam[] getParams();
+    ISynthParameter[] getParams();
 
     String getName();
 
