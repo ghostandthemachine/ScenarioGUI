@@ -1,7 +1,6 @@
 package scenariogui.ui;
 
 import java.awt.geom.Point2D.Double;
-import scenariogui.ui.GUIComponent;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.RenderingHints;
@@ -27,6 +26,7 @@ public class SimpleDial extends GUIComponent {
 
     SGGroup valueDisplayGroup = new SGGroup();
     FXShape valDisplayBox = new FXShape();
+    SGText displayLabel = new SGText();
     SGText label = new SGText();
     FXShape baseEllipse = new FXShape();
     SGGroup subGroup = new SGGroup();
@@ -37,7 +37,7 @@ public class SimpleDial extends GUIComponent {
     SGTransform.Affine dialAffine;
     float cx, cy, px, py;
     double rotationStep = 10.0;
-    private Color fillColor = new Color(100, 200, 100, 100);
+    private Color fillColor = new Color(100, 200, 100, 30);
     private float value = 0;
     private int numTicks;
     private int stepSize;
@@ -58,7 +58,6 @@ public class SimpleDial extends GUIComponent {
         createDial();
         createDisplayValueShape();
 
-
     }
 
     void createDial() {
@@ -70,11 +69,11 @@ public class SimpleDial extends GUIComponent {
         double br = (radius * 2) - radius / 8;
 
         baseEllipse.setShape(new Ellipse2D.Double(dx, dy, br, br));
-        baseEllipse.setDrawPaint(Color.gray);
+        baseEllipse.setDrawPaint(Color.white);
         baseEllipse.setFillPaint(fillColor);
         baseEllipse.setOpacity(0.6f);
         baseEllipse.setMode(SGShape.Mode.STROKE_FILL);
-        baseEllipse.setDrawStroke(new BasicStroke(1));
+        baseEllipse.setDrawStroke(new BasicStroke(4));
         baseEllipse.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
 
         subGroup.add(baseEllipse);
@@ -87,6 +86,19 @@ public class SimpleDial extends GUIComponent {
         dialAffine = SGTransform.createAffine(new AffineTransform(), subGroup);
 
         this.addComponent(dialAffine);
+    }
+
+    public void addLabel(String labelString) {
+        label.setText(labelString);
+
+        double tx = this.getX() - ((label.getBounds().getWidth() - this.getWidth()) / 2);
+        double ty = this.getY() + this.getHeight() + 15;
+
+        label.setFont(new Font("helvetica", Font.PLAIN, 12));
+        label.setLocation(new Point2D.Double(tx, ty));
+        label.setFillPaint(Color.white);
+
+        this.addComponent(label);
     }
 
     @Override
@@ -180,35 +192,35 @@ public class SimpleDial extends GUIComponent {
         double ty = this.getY() + this.getHeight() + 15;
 
         String value = Float.toString((float) theta);
-        label.setFont(new Font("helvetica", Font.PLAIN, 12));
-        label.setLocation(new Point2D.Double(tx + displayPadding, ty + 2));
-        label.setFillPaint(Color.black);
-        label.setText(value);
+        displayLabel.setFont(new Font("helvetica", Font.PLAIN, 12));
+        displayLabel.setLocation(new Point2D.Double(tx + displayPadding, ty + 2));
+        displayLabel.setFillPaint(Color.black);
+        displayLabel.setText(value);
 
 
-        lastWidth = label.getBounds().getWidth() + displayPadding * 2;
+        lastWidth = displayLabel.getBounds().getWidth() + displayPadding * 2;
 
         Point2D.Double p = (Double) this.getGlobalCoordinate();
 
 
-        valDisplayBox.setShape(new Rectangle2D.Double(tx, ty, label.getBounds().getWidth() + displayPadding * 2, label.getBounds().getHeight() + 6));
+        valDisplayBox.setShape(new Rectangle2D.Double(tx, ty, displayLabel.getBounds().getWidth() + displayPadding * 2, displayLabel.getBounds().getHeight() + 6));
         valDisplayBox.setDrawPaint(Color.red);
         valDisplayBox.setFillPaint(Color.GREEN);
         valDisplayBox.setMode(Mode.STROKE_FILL);
         valDisplayBox.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
 
         valueDisplayGroup.add(valDisplayBox);
-        valueDisplayGroup.add(label);
+        valueDisplayGroup.add(displayLabel);
     }
 
     private void displayValue(double theta) {
 
         double tx = this.getX() + 3;
         double ty = this.getY() + this.getHeight() + 4;
-        double tw = label.getBounds().getWidth() + displayPadding * 2;
-        double th = label.getBounds().getHeight() + 6;
+        double tw = displayLabel.getBounds().getWidth() + displayPadding * 2;
+        double th = displayLabel.getBounds().getHeight() + 6;
 
-        label.setText(name + ": " + Float.toString((float) theta));
+        displayLabel.setText(name + ": " + Float.toString((float) theta));
 
         valDisplayBox.setShape(new Rectangle2D.Double(tx, ty, tw, th));
 

@@ -46,6 +46,6 @@ public class TestSynth implements ISynth {
 
     @Override
     public void control(String parameter, float value) {
-        System.out.println("Control; " + parameter + "   " + value);
+        System.out.println("Control: " + parameter + "   " + value);
     }
 }
