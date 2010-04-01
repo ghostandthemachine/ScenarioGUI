@@ -14,6 +14,10 @@ import javax.swing.JFrame;
  */
 public class Main {
 
+
+    public Main(){
+        
+    }
     /**
      * @param args the command line arguments
      */

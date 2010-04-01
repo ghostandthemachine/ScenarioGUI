@@ -27,7 +27,7 @@ import java.awt.geom.RoundRectangle2D;
  *
  * @author jon rose
  */
-public class GUIComponent {
+public class GUIComponent extends SGGroup {
 
     private double x;
     private double y;
@@ -37,7 +37,6 @@ public class GUIComponent {
     private double height;
     private Color baseColor = new Color(210, 210, 210);
     private FXShape baseShape = new FXShape();
-    private SGGroup componentRoot = new SGGroup();
     private double mouseX = 0;
     private double mouseY = 0;
     private double lastX = 0;
@@ -46,12 +45,13 @@ public class GUIComponent {
     private double yVelocity = 0;
     private boolean mousePressed = false;
     private boolean dragging = false;
-    private SGTransform.Translate translation = SGTransform.createTranslation(0, 0, componentRoot);
+    private SGTransform.Translate translation = SGTransform.createTranslation(0, 0, this);
 
     /**
      *
      * @param x
-     * @param y
+     * @pa
+     * ram y
      * @param width
      * @param height
      */
@@ -63,7 +63,7 @@ public class GUIComponent {
         width = w;
         height = h;
 
-        componentRoot.add(buildBaseShape(new RoundRectangle2D.Double(x, y, width, height, 16, 16)));
+        add(buildBaseShape(new RoundRectangle2D.Double(x, y, width, height, 16, 16)));
 
     }
 
@@ -76,7 +76,7 @@ public class GUIComponent {
         baseShape.setShape(s);
         baseShape.setFillPaint(baseColor);
         baseShape.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
-        baseShape.setMode(SGShape.Mode.STROKE_FILL);
+        baseShape.setMode(SGShape.Mode.FILL);
         baseShape.addMouseListener(baseMouseListener());
         return baseShape;
     }
@@ -88,24 +88,32 @@ public class GUIComponent {
     public SGMouseListener baseMouseListener() {
         SGMouseListener ml = new SGMouseListener() {
 
+            @Override
             public void mouseClicked(MouseEvent me, SGNode sgnode) {
+                clicked();
             }
 
+            @Override
             public void mousePressed(MouseEvent me, SGNode sgnode) {
                 mousePressed = true;
             }
 
+            @Override
             public void mouseReleased(MouseEvent me, SGNode sgnode) {
+                released();
                 mousePressed = false;
                 dragging = false;
             }
 
+            @Override
             public void mouseEntered(MouseEvent me, SGNode sgnode) {
             }
 
+            @Override
             public void mouseExited(MouseEvent me, SGNode sgnode) {
             }
 
+            @Override
             public void mouseDragged(MouseEvent me, SGNode sgnode) {
                 dragging = true;
 
@@ -118,9 +126,10 @@ public class GUIComponent {
                 xVelocity = mouseX - lastX;
                 yVelocity = mouseY - lastY;
 
-                nodeDragged();
+                dragged();
             }
 
+            @Override
             public void mouseMoved(MouseEvent me, SGNode sgnode) {
                 lastX = mouseX;
                 lastY = mouseY;
@@ -130,6 +139,7 @@ public class GUIComponent {
                 mouseY = me.getPoint().getY();
             }
 
+            @Override
             public void mouseWheelMoved(MouseWheelEvent mwe, SGNode sgnode) {
             }
         };
@@ -142,7 +152,7 @@ public class GUIComponent {
      * @param SGNode
      */
     public void addComponent(SGNode node) {
-        componentRoot.add(node);
+        add(node);
     }
 
     /**
@@ -151,7 +161,7 @@ public class GUIComponent {
      * @param node
      */
     public void removeComponent(SGNode node) {
-        componentRoot.remove(node);
+        remove(node);
     }
 
     /**
@@ -161,7 +171,7 @@ public class GUIComponent {
      */
     public SGGroup getComponentGroup() {
 
-        return componentRoot;
+        return this;
     }
 
     /**
@@ -188,7 +198,7 @@ public class GUIComponent {
      *
      * @param f
      */
-    public void setBaseShapeOpacity(float f){
+    public void setBaseShapeOpacity(float f) {
         baseShape.setOpacity(f);
     }
 
@@ -207,7 +217,7 @@ public class GUIComponent {
      */
     public void setBaseShape(FXShape bShape) {
         Point2D p = getGlobalCoordinate();
-        componentRoot.remove(baseShape);
+        remove(baseShape);
         baseShape = bShape;
         baseShape.setTranslation(p);
         this.addComponent(baseShape);
@@ -256,6 +266,7 @@ public class GUIComponent {
      */
     public void setWidth(double width) {
         this.width = width;
+        baseShape.setShape(new RoundRectangle2D.Double(x, y, width, height, 16, 16));
     }
 
     /**
@@ -271,6 +282,14 @@ public class GUIComponent {
      * @return
      */
     public double getY() {
+
+
+
+
+
+
+
+
         return y;
     }
 
@@ -279,7 +298,8 @@ public class GUIComponent {
      * @param x
      */
     public void setTranslateX(double x) {
-        translation.setTranslateX(x);
+        translation.setTranslateX(
+                x);
     }
 
     /**
@@ -421,7 +441,13 @@ public class GUIComponent {
     /**
      *
      */
-    public void nodeDragged() {
+    public void dragged() {
+    }
+
+    public void released() {
+    }
+
+    public void clicked() {
     }
 
     /**
@@ -430,5 +456,9 @@ public class GUIComponent {
      */
     public boolean getDragging() {
         return dragging;
+    }
+
+    public void setBaseVisible(boolean b) {
+        baseShape.setVisible(b);
     }
 }

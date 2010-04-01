@@ -53,6 +53,11 @@ public class StepSequencer extends GUIComponent {
     public static int QUARTER_NOTE = 1;
     public static int HALF_NOTE = 2;
     public static int WHOLE_NOTE = 4;
+    private float softVelocity = 60;
+    private float mediumVelocity = 90;
+    private float hardVelocity = 120;
+    private float currentDefaultVelocity = mediumVelocity;
+    private boolean removeSteps = false;
 
     public StepSequencer(float tx, float ty, float tw, float th, float tsteps, float ttracks, float xstep, float ystep, float plusw, float plush) {
         super(tx, ty, tw, th);
@@ -338,20 +343,29 @@ public class StepSequencer extends GUIComponent {
 
     void updateVelocityArray(int stepID, float velocity) {
         velocities[currentPreset][currentFocussedTrack][stepID] = velocity;
-     //   System.out.println(currentPreset + "  " + currentFocussedTrack + "  " + stepID + "  velocity  = " + velocity);
+        //   System.out.println(currentPreset + "  " + currentFocussedTrack + "  " + stepID + "  velocity  = " + velocity);
     }
-
-
-
 
     private void printVelocityArray() {
         System.out.println("the current preset is :" + currentPreset);
-        for(int i = 0; i < numTracks; i++) {
-            for(int j = 0; j <numSteps; j++) {
+        for (int i = 0; i < numTracks; i++) {
+            for (int j = 0; j < numSteps; j++) {
                 System.out.print("t: " + i + "  s: " + j + " " + velocities[currentPreset][i][j] + " - ");
             }
             System.out.println();
         }
+    }
+
+    public float getCurrentDefaultVelocity() {
+        return currentDefaultVelocity;
+    }
+
+    boolean getRemoveSteps() {
+        return removeSteps;
+    }
+
+    void setRemoveSteps(boolean b) {
+        removeSteps = b;
     }
 }
 

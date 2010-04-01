@@ -38,6 +38,7 @@ public class Step {
     Color vStepCurrentFillColor = stepOffFillColor;
     private final int trackID;
     private final int stepID;
+    private boolean isOn = false;
 
     public Step(StepSequencer s, double tx, double ty, float tw, float th, float tr, int ti, int si) {
         x = (float) tx;
@@ -58,7 +59,7 @@ public class Step {
         velocityStep.setFillPaint(stepOnFillColor);
         velocityStep.setMode(SGShape.Mode.FILL);
         velocityStep.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
-        velocityStep.addMouseListener(new StepMouseListener(this));
+         velocityStep.addMouseListener(new StepHighLightListener(this));
 
 
         step.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
@@ -97,7 +98,7 @@ public class Step {
     }
 
     public boolean isAlive() {
-        return alive;
+        return isAlive;
     }
 
     public void setVelocityStepLevel(float ty) {
@@ -111,7 +112,6 @@ public class Step {
         velocityStep.setOpacity(Tools.map(velocity, 0, 127, 0.3f, 1.0f));
 
         velocity = Tools.map(ty, 0f, h, 127.0f, 0.0f);
-
         updateParentVelocityArray(velocity);
     }
 
@@ -162,4 +162,26 @@ public class Step {
     private void updateParentVelocityArray(float velocity) {
         parent.updateVelocityArray(trackID, stepID, velocity);
     }
+
+    void setStepOn() {
+        isAlive = true;
+        velocity = parent.getCurrentDefaultVelocity();
+
+
+        velocityStep.setOpacity((float) Tools.map(velocity, 0, 127, 0.0, 1.0));
+        velocityStep.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
+        velocityStep.setFillPaint(stepOnFillColor);
+
+        updateParentVelocityArray(velocity);
+    }
+
+    void setStepOff() {
+        isAlive = false;
+        velocity = 0;
+
+        velocityStep.setFillPaint(new Color(0,0,0,0));
+
+        updateParentVelocityArray(velocity);
+    }
+
 }

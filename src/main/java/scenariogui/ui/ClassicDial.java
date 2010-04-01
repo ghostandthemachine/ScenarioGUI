@@ -57,7 +57,7 @@ public class ClassicDial extends GUIComponent {
     }
 
     @Override
-    public void nodeDragged() {
+    public void dragged() {
         theta -= this.getYVelocity();
         theta = Tools.constrain((float) theta, -130f, 130f);
         rotate(Math.toRadians(theta));

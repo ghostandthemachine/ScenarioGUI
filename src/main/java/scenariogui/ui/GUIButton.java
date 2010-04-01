@@ -16,9 +16,8 @@ import java.awt.geom.RoundRectangle2D;
  *
  * @author Jon
  */
-public class GUIButton {
+public class GUIButton extends GUIComponent {
 
-    private SGGroup group = new SGGroup();
     private FXShape buttonShape = new FXShape();
     private Color fillColor = Color.lightGray;
     private Color onColor = Color.PINK;
@@ -26,12 +25,13 @@ public class GUIButton {
     private boolean isOn = false;
 
     public GUIButton(double tx, double ty, double w, double h, String s) {
+        super(tx,ty,w,h);
         id = s;
         buttonShape.setShape(new RoundRectangle2D.Double(tx, ty, w, h, 6, 6));
         buttonShape.setFillPaint(fillColor);
         buttonShape.setMode(SGShape.Mode.FILL);
         buttonShape.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
-        group.add(buttonShape);
+        add(buttonShape);
     }
 
     public boolean isOn() {
@@ -53,7 +53,7 @@ public class GUIButton {
     }
 
     public SGGroup getComponentGroup() {
-        return group;
+        return this;
     }
 
     public FXShape getButtonShape() {
@@ -79,7 +79,6 @@ public class GUIButton {
     public void setOnColor(Color onColor) {
         this.onColor = onColor;
     }
-
 
 }
 

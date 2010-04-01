@@ -1,5 +1,6 @@
-package scenariogui.ui.stepsequencer;
+package scenariogui.ui;
 
+import java.awt.geom.Point2D.Double;
 import scenariogui.ui.GUIComponent;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -8,18 +9,25 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
 import com.sun.scenario.effect.DropShadow;
+import com.sun.scenario.scenegraph.SGAbstractShape.Mode;
 import com.sun.scenario.scenegraph.SGGroup;
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
+import com.sun.scenario.scenegraph.SGText;
 import com.sun.scenario.scenegraph.SGTransform;
 import com.sun.scenario.scenegraph.fx.FXShape;
-import java.awt.geom.Arc2D;
+import java.awt.Font;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import scenariogui.Tools;
 
-public class ResolutionDial extends GUIComponent {
+public class SimpleDial extends GUIComponent {
 
+    SGGroup valueDisplayGroup = new SGGroup();
+    FXShape valDisplayBox = new FXShape();
+    SGText label = new SGText();
     FXShape baseEllipse = new FXShape();
     SGGroup subGroup = new SGGroup();
     DropShadow iShadow = new DropShadow();
@@ -29,7 +37,7 @@ public class ResolutionDial extends GUIComponent {
     SGTransform.Affine dialAffine;
     float cx, cy, px, py;
     double rotationStep = 10.0;
-    private Color fillColor;
+    private Color fillColor = new Color(100, 200, 100, 100);
     private float value = 0;
     private int numTicks;
     private int stepSize;
@@ -37,18 +45,24 @@ public class ResolutionDial extends GUIComponent {
     double dy;
     private int lastValue = 0;
     private int selectionValue;
-    private StepSequencer parent;
+    private GUIComponent parent;
+    private int displayPadding = 4;
+    private double lastWidth;
+    private String name;
 
-    public ResolutionDial(double tx, double ty, int size, StepSequencer s) {
+    public SimpleDial(String name, double tx, double ty, int size, GUIComponent parent) {
         super(tx, ty, size, size);
-        parent = s;
+        this.name = name;
+        this.parent = parent;
         radius = (size - (size / 4)) / 2;
         createDial();
-        fillColor = new Color(200, 200, 200, 100);
+        createDisplayValueShape();
+
+
     }
 
     void createDial() {
-        super.setBaseColor(new Color(200, 200, 200));
+        super.setBaseColor(new Color(200, 200, 200, 0));
 
         dx = this.getX() + (this.getWidth() / 2) - radius;
         dy = this.getY() + (this.getHeight() / 2) - radius;
@@ -57,7 +71,7 @@ public class ResolutionDial extends GUIComponent {
 
         baseEllipse.setShape(new Ellipse2D.Double(dx, dy, br, br));
         baseEllipse.setDrawPaint(Color.gray);
-        baseEllipse.setFillPaint(Color.GREEN);
+        baseEllipse.setFillPaint(fillColor);
         baseEllipse.setOpacity(0.6f);
         baseEllipse.setMode(SGShape.Mode.STROKE_FILL);
         baseEllipse.setDrawStroke(new BasicStroke(1));
@@ -66,7 +80,7 @@ public class ResolutionDial extends GUIComponent {
         subGroup.add(baseEllipse);
         subGroup.add(createIndicator());
 
-        this.addComponent(createDashes(5, 1, 2));
+        this.addComponent(createDashes(10, 1, 2));
 
 
 
@@ -78,21 +92,23 @@ public class ResolutionDial extends GUIComponent {
     @Override
     public void dragged() {
         theta -= 2 * this.getYVelocity();
-        theta = Tools.constrain(theta, -180, 180);
-        float updateTheta = ((int) (theta / stepSize)) * stepSize;
-        rotate(Math.toRadians(updateTheta));
+        //  theta = Tools.constrain(theta, -180, 180);
+        rotate(Math.toRadians(theta));
 
         int value = (int) theta / stepSize;
-        if (lastValue != value) {
-            setSelectionValue(value);
-        }
         lastValue = value;
+        this.value = (float) theta;
 
+        displayValue(theta);
+    }
 
+    @Override
+    public void released() {
+        hideDisplayValue();
     }
 
     public void update() {
-        theta = Tools.map(value, 0f, 100f, -2.6f, 2.6f);
+        // theta = Tools.map(value, 0f, 100f, -2.6f, 2.6f);
         theta = Tools.constrain((float) theta, -2.6f, 2.6f);
         rotate(theta);
     }
@@ -140,19 +156,6 @@ public class ResolutionDial extends GUIComponent {
 
         group.add(trans);
 
-        FXShape arc = new FXShape();
-        double aw = (radius * 2) + radius / 2;
-        double ax = this.getX() + ((this.getWidth() - aw) / 2);
-        double ay = this.getY() + ((this.getHeight() - aw) / 2);
-
-        arc.setShape(new Arc2D.Double(ax, ay, aw, aw, -(stepSize) + 12, stepSize * 4 + 12, Arc2D.OPEN));
-        arc.setDrawPaint(Color.white);
-        arc.setMode(SGShape.Mode.STROKE);
-        arc.setDrawStroke(new BasicStroke(1));
-        arc.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
-
-        group.add(arc);
-
         return group;
 
     }
@@ -172,7 +175,59 @@ public class ResolutionDial extends GUIComponent {
         return indicator;
     }
 
-    private void setSelectionValue(int value) {
-        parent.setResolution(value);
+    private void createDisplayValueShape() {
+        double tx = this.getX() + 3;
+        double ty = this.getY() + this.getHeight() + 15;
+
+        String value = Float.toString((float) theta);
+        label.setFont(new Font("helvetica", Font.PLAIN, 12));
+        label.setLocation(new Point2D.Double(tx + displayPadding, ty + 2));
+        label.setFillPaint(Color.black);
+        label.setText(value);
+
+
+        lastWidth = label.getBounds().getWidth() + displayPadding * 2;
+
+        Point2D.Double p = (Double) this.getGlobalCoordinate();
+
+
+        valDisplayBox.setShape(new Rectangle2D.Double(tx, ty, label.getBounds().getWidth() + displayPadding * 2, label.getBounds().getHeight() + 6));
+        valDisplayBox.setDrawPaint(Color.red);
+        valDisplayBox.setFillPaint(Color.GREEN);
+        valDisplayBox.setMode(Mode.STROKE_FILL);
+        valDisplayBox.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
+
+        valueDisplayGroup.add(valDisplayBox);
+        valueDisplayGroup.add(label);
+    }
+
+    private void displayValue(double theta) {
+
+        double tx = this.getX() + 3;
+        double ty = this.getY() + this.getHeight() + 4;
+        double tw = label.getBounds().getWidth() + displayPadding * 2;
+        double th = label.getBounds().getHeight() + 6;
+
+        label.setText(name + ": " + Float.toString((float) theta));
+
+        valDisplayBox.setShape(new Rectangle2D.Double(tx, ty, tw, th));
+
+        parent.addComponent(valueDisplayGroup);
+
+        lastWidth = tw;
+
+
+    }
+
+    private void hideDisplayValue() {
+        parent.removeComponent(valueDisplayGroup);
+    }
+
+    public float getValue() {
+        return value;
+    }
+
+    public String getName() {
+        return name;
     }
 }

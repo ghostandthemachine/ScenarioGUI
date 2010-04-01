@@ -10,12 +10,14 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 import javax.swing.Timer;
+import scenariogui.synth.SynthControl;
+import scenariogui.synth.TestSynth;
+import scenariogui.ui.TrackModule;
 import scenariogui.ui.notesequencer.NoteScene;
 import scenariogui.ui.stepsequencer.AdvancedStepSequencer;
 import scenariogui.ui.notesequencer.NoteSequencer;
@@ -24,7 +26,7 @@ import scenariogui.ui.notesequencer.NoteSequencer;
  *
  * @author jon
  */
-public class MasterPanel extends JSGPanel{
+public class MasterPanel extends JSGPanel {
 
     SGGroup root = new SGGroup();
     public static double mouseX;
@@ -48,14 +50,24 @@ public class MasterPanel extends JSGPanel{
 
         NoteSequencer ns = new NoteSequencer(200d, 200d, 200d, 100d, 2, 16, this);
 
+//        TrackModule box = new TrackModule(10, 10);
+//        root.add(box.getComponentGroup());
 
+        SynthControl sc = new SynthControl(new TestSynth());
+        root.add(sc);
+
+
+        String[] strings = {"fuck this", "fuck this", "fuck this", "fuck this", "fuck this"};
+        TrackModule track = new TrackModule(50,50);
+       // root.add(track.getComponentGroup());
+        
         NoteScene noteS = new NoteScene();
 
-        root.add(ns.getComponentGroup());
+      //  root.add(ns.getComponentGroup());
 
 
         root.add(listenerShape);
-        root.add(ass.getComponentGroup());
+        //root.add(ass.getComponentGroup());
 
 
         setScene(root);
