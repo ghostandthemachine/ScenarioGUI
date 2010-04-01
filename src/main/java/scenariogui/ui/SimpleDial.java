@@ -20,6 +20,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import javax.tools.Tool;
 import scenariogui.Tools;
 
 public class SimpleDial extends GUIComponent {
@@ -49,6 +50,8 @@ public class SimpleDial extends GUIComponent {
     private int displayPadding = 4;
     private double lastWidth;
     private String name;
+    private float minValue = 0;
+    private float maxValue = 100;
 
     public SimpleDial(String name, double tx, double ty, int size, GUIComponent parent) {
         super(tx, ty, size, size);
@@ -104,13 +107,9 @@ public class SimpleDial extends GUIComponent {
     @Override
     public void dragged() {
         theta -= 2 * this.getYVelocity();
-        //  theta = Tools.constrain(theta, -180, 180);
+        theta = Tools.constrain(theta, -145, 145); //set constraints for dial rotation
+        value = (float) Tools.map(theta, -145, 145, minValue, maxValue);
         rotate(Math.toRadians(theta));
-
-        int value = (int) theta / stepSize;
-        lastValue = value;
-        this.value = (float) theta;
-
         displayValue(theta);
     }
 
@@ -119,16 +118,19 @@ public class SimpleDial extends GUIComponent {
         hideDisplayValue();
     }
 
-    public void update() {
-        // theta = Tools.map(value, 0f, 100f, -2.6f, 2.6f);
-        theta = Tools.constrain((float) theta, -2.6f, 2.6f);
+    public void update(float val) {
+        theta = Tools.map(val, minValue, maxValue, -2.6f, 2.6f);
+        value = val;
         rotate(theta);
     }
 
     private void rotate(double theta) {
+
         AffineTransform at = new AffineTransform();
         at.rotate(theta, this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2);
         dialAffine.setAffine(at);
+
+        System.out.println(value);
 
     }
 
@@ -145,6 +147,7 @@ public class SimpleDial extends GUIComponent {
         double[] y2 = new double[num];
 
         for (int i = 0; i < num; i++) {
+
             double radians = Math.toRadians(360 / num * i - 90);
             x[i] = (radius + (radius / 2) - dashSize) * Math.cos(radians) + this.getX() + ((this.getWidth() - (radius * 2)) / 2);
             y[i] = (radius + (radius / 2) - dashSize) * Math.sin(radians) + this.getY() + ((this.getHeight() - (radius * 2)) / 2);
@@ -153,8 +156,10 @@ public class SimpleDial extends GUIComponent {
         }
 
         for (int i = 0; i < num; i++) {
-            p.moveTo(x[i], y[i]);
-            p.lineTo(x2[i], y2[i]);
+            if (i != num / 2) {
+                p.moveTo(x[i], y[i]);
+                p.lineTo(x2[i], y2[i]);
+            }
         }
 
         FXShape tick = new FXShape();
@@ -220,7 +225,7 @@ public class SimpleDial extends GUIComponent {
         double tw = displayLabel.getBounds().getWidth() + displayPadding * 2;
         double th = displayLabel.getBounds().getHeight() + 6;
 
-        displayLabel.setText(name + ": " + Float.toString((float) theta));
+        displayLabel.setText(name + ": " + Float.toString((float) value));
 
         valDisplayBox.setShape(new Rectangle2D.Double(tx, ty, tw, th));
 
@@ -241,5 +246,10 @@ public class SimpleDial extends GUIComponent {
 
     public String getName() {
         return name;
+    }
+
+    public void setRange(float min, float max) {
+        minValue = min;
+        maxValue = max;
     }
 }

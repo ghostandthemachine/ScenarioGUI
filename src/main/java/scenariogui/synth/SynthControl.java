@@ -63,6 +63,7 @@ public class SynthControl extends GUIComponent {
             };
 
             dial.addLabel(name);
+            dial.setRange(params[i].getStart(), params[i].getEnd());
             this.add(dial);
         }
 
