@@ -20,7 +20,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import javax.tools.Tool;
 import scenariogui.Tools;
 
 public class SimpleDial extends GUIComponent {
@@ -110,7 +109,7 @@ public class SimpleDial extends GUIComponent {
         theta = Tools.constrain(theta, -145, 145); //set constraints for dial rotation
         value = (float) Tools.map(theta, -145, 145, minValue, maxValue);
         rotate(Math.toRadians(theta));
-        displayValue(theta);
+        displayValue(value);
     }
 
     @Override
