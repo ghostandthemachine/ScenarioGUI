@@ -9,7 +9,6 @@ import com.sun.scenario.scenegraph.fx.FXShape;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Point2D;
 import scenariogui.Triangle;
 import scenariogui.ui.GUIButton;
@@ -25,7 +24,7 @@ public class SynthControl extends GUIComponent {
     GUIButton trigger;
     SGText mainLabel = new SGText();
     ISynth synth;
-    float[] args = {0f, 0f, 0f, 0f, 0f};
+    float[] args;
     int dialWidth = 40;
     int padding = 10;
     int spacing = 15;
@@ -37,6 +36,7 @@ public class SynthControl extends GUIComponent {
         this.numDials = synth.getParams().length;
         this.synth = synth;
         this.dials = new SimpleDial[numDials];
+        args = new float[numDials];
 
         this.setBaseColor(new Color(100, 100, 100));
 
@@ -80,7 +80,6 @@ public class SynthControl extends GUIComponent {
 
 
         trigger = new GUIButton(tx, ty, 20, 20, "trigger") {
-
             @Override
             public void clicked() {
                 if (!this.isOn()) {
@@ -115,7 +114,7 @@ public class SynthControl extends GUIComponent {
 
     private FXShape createTriangle() {
         FXShape triangle = new FXShape();
-        Point p1 = new Point((int) (5 + trigger.getX()),(int) (5 + trigger.getY()));
+        Point p1 = new Point((int) (5 + trigger.getX()), (int) (5 + trigger.getY()));
         Point p2 = new Point((int) (trigger.getWidth() - 5 + trigger.getX()), (int) (trigger.getY() + trigger.getHeight() / 2));
         Point p3 = new Point((int) (5 + trigger.getX()), (int) (trigger.getY() + trigger.getHeight() - 5));
 

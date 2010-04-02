@@ -29,6 +29,7 @@ import java.awt.geom.RoundRectangle2D;
  */
 public class GUIComponent extends SGGroup {
 
+    GUIComponent parent = null;
     private double x;
     private double y;
     private double xOffset = 0;
@@ -460,5 +461,9 @@ public class GUIComponent extends SGGroup {
 
     public void setBaseVisible(boolean b) {
         baseShape.setVisible(b);
+    }
+
+    public GUIComponent getGUIParent() {
+        return parent;
     }
 }

@@ -20,7 +20,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import javax.tools.Tool;
 import scenariogui.Tools;
 
 public class SimpleDial extends GUIComponent {

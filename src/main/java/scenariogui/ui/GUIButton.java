@@ -4,18 +4,14 @@
  */
 package scenariogui.ui;
 
-import com.sun.scenario.scenegraph.SGAbstractShape.Mode;
 import com.sun.scenario.scenegraph.SGGroup;
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
 import com.sun.scenario.scenegraph.fx.FXShape;
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
-import scenariogui.Triangle;
 
 /**
  *
@@ -93,8 +89,6 @@ public class GUIButton extends GUIComponent {
     public void setOnColor(Color onColor) {
         this.onColor = onColor;
     }
-
-
 
     public void addIndicator(SGNode node) {
         indicator = (FXShape) node;

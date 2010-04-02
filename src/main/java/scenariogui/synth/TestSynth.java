@@ -34,7 +34,7 @@ public class TestSynth implements ISynth {
 
     @Override
     public void play(float[] args) {
-        System.out.println("play " + this + " synth");
+        System.out.println("play " + this + " synth   " + args);
 
     }
 
