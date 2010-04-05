@@ -19,61 +19,66 @@ import scenariogui.Tools;
  */
 public class FocusStepMouseListener implements SGMouseListener {
 
-    public FocusStep parent;
+    public FocusStep parentFocusStep;
     Point2D p;
     private boolean create = false;
     private boolean over = false;
 
     public FocusStepMouseListener(FocusStep c) {
-        parent = c;
+        parentFocusStep = c;
     }
 
+    @Override
     public void mouseClicked(MouseEvent me, SGNode sgnode) {
         clicked(me, sgnode);
 
         FXShape node = (FXShape) sgnode;
         p = me.getPoint();
-        if (parent.isAlive()) {
-            node.setDrawPaint(Color.orange);
-            node.setFillPaint(parent.stepOnFillColor);
-            parent.currentFillColor = parent.stepOnFillColor;
-        } else if (!parent.isAlive()) {
-            node.setFillPaint(parent.stepOffFillColor);
-            parent.currentFillColor = parent.stepOffFillColor;
-        }
+//        if (parentFocusStep.isAlive()) {
+//            node.setDrawPaint(Color.orange);
+//            node.setFillPaint(parentFocusStep.stepOnFillColor);
+//            parentFocusStep.currentFillColor = parentFocusStep.stepOnFillColor;
+//        } else if (!parentFocusStep.isAlive()) {
+//            node.setFillPaint(parentFocusStep.stepOffFillColor);
+//            parentFocusStep.currentFillColor = parentFocusStep.stepOffFillColor;
+//        }
     }
 
+    @Override
     public void mousePressed(MouseEvent me, SGNode sgnode) {
-        if (parent.isAlive()) {
-            parent.isAlive = false;
-            parent.getParent().setAddSteps(false);
+        if (parentFocusStep.isAlive()) {
+            parentFocusStep.isAlive = false;
+            parentFocusStep.getParent().setAddSteps(false);
         } else {
-            parent.isAlive = true;
-            parent.getParent().setAddSteps(true);
+            parentFocusStep.isAlive = true;
+            parentFocusStep.getParent().setAddSteps(true);
         }
 
-        if (parent.getParent().getAddSteps()) {
-            parent.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parent.y, 0, parent.h));
+        if (parentFocusStep.getParent().getAddSteps()) {
+            parentFocusStep.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parentFocusStep.y, 0, parentFocusStep.h));
         }
 
         pressed(me, sgnode);
     }
 
+    @Override
     public void mouseReleased(MouseEvent me, SGNode sgnode) {
-        parent.getParent().setAddSteps(false);
+        parentFocusStep.getParent().setAddSteps(false);
     }
 
+    @Override
     public void mouseEntered(MouseEvent me, SGNode sgnode) {
         over = true;
         FXShape node = (FXShape) sgnode;
         node.setDrawPaint(Color.lightGray);
 
-        if (parent.getParent().getAddSteps()) {
-            parent.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parent.y, 0, parent.h));
+        if (parentFocusStep.getParent().getAddSteps()) {
+            parentFocusStep.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parentFocusStep.y, 0, parentFocusStep.h));
         }
 
     }
 
+    @Override
     public void mouseExited(MouseEvent me, SGNode sgnode) {
         over = false;
         FXShape node = (FXShape) sgnode;
@@ -81,21 +86,24 @@ public class FocusStepMouseListener implements SGMouseListener {
 
     }
 
+    @Override
     public void mouseDragged(MouseEvent me, SGNode sgnode) {
-        if (parent.getParent().getAddSteps() && over) {
-            parent.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parent.y, 0, parent.h));
+        if (parentFocusStep.getParent().getAddSteps() && over) {
+            parentFocusStep.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parentFocusStep.y, 0, parentFocusStep.h));
         }
 
         dragged(me, sgnode);
     }
 
+    @Override
     public void mouseMoved(MouseEvent me, SGNode sgnode) {
         //if dragging activate a velocity
-        if (parent.getParent().getDragging() && create) {
-            parent.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parent.y, 0, parent.h));
+        if (parentFocusStep.getParent().getDragging() && create) {
+            parentFocusStep.setVelocityStepLevel(Tools.constrain(me.getPoint().y - parentFocusStep.y, 0, parentFocusStep.h));
         }
     }
 
+    @Override
     public void mouseWheelMoved(MouseWheelEvent mwe, SGNode sgnode) {
     }
 

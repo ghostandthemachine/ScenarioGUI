@@ -20,7 +20,6 @@ import scenariogui.synth.TestSynth;
 import scenariogui.ui.TrackModule;
 import scenariogui.ui.notesequencer.NoteScene;
 import scenariogui.ui.stepsequencer.AdvancedStepSequencer;
-import scenariogui.ui.notesequencer.NoteSequencer;
 
 /**
  *
@@ -44,17 +43,12 @@ public class MasterPanel extends JSGPanel {
 
     public MasterPanel() {
 
-        AdvancedStepSequencer ass = new AdvancedStepSequencer(50, 50, 16, 8);
-        createSceneMouseListener();
-        ass.setBpm(4 * 120f);
-
-        NoteSequencer ns = new NoteSequencer(200d, 200d, 200d, 100d, 2, 16, this);
-
-//        TrackModule box = new TrackModule(10, 10);
-//        root.add(box.getComponentGroup());
+        AdvancedStepSequencer seq = new AdvancedStepSequencer(20,20, 16, 8);
+        seq.setBpm(120);
+        root.add(seq);
 
         SynthControl sc = new SynthControl(new TestSynth());
-        root.add(sc);
+     //   root.add(sc);
 
 
         String[] strings = {"fuck this", "fuck this", "fuck this", "fuck this", "fuck this"};

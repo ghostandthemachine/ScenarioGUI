@@ -1,17 +1,17 @@
 package scenariogui.ui.stepsequencer;
 
+import com.sun.scenario.animation.Clip;
 import com.sun.scenario.scenegraph.SGGroup;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
 
-import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.fx.FXShape;
 import scenariogui.Tools;
 
-public class Step {
+public class Step extends SGGroup {
 
     float x;
     float y;
@@ -24,21 +24,24 @@ public class Step {
     private boolean alive = false;
     boolean isAlive;
     StepSequencer parent;
-    SGGroup stepGroup = new SGGroup();
     FXShape step = new FXShape();
-    FXShape velocityStep = new FXShape();
+    public FXShape velocityStep = new FXShape();
+    FXShape hitStep = new FXShape();
     //Colors for base shape
-    Color stepOffFillColor = new Color(150, 150, 150);
-    Color stepOnFillColor = new Color(200, 240, 255);
+    Color stepFillColor = new Color(150, 150, 150);
     Color stepCountColor = Color.ORANGE;
-    Color currentFillColor = stepOffFillColor;
+    Color currentFillColor = stepFillColor;
     //Colors for velocity rect
-    Color vStepOffFillColor = new Color(150, 150, 150);
-    Color vStepOnFillColor = new Color(200, 240, 255);
-    Color vStepCurrentFillColor = stepOffFillColor;
+    Color vStepColor = new Color(200, 255, 200);
+    Color vStepCurrentFillColor = stepFillColor;
+    //Colors for velocity rect
+    Color hitColor = Color.white;
     private final int trackID;
     private final int stepID;
     private boolean isOn = false;
+    int delayTime;
+    Clip hardFadeOut;
+    Clip softFadeOut;
 
     public Step(StepSequencer s, double tx, double ty, float tw, float th, float tr, int ti, int si) {
         x = (float) tx;
@@ -50,20 +53,31 @@ public class Step {
         stepID = si;
         parent = s;
 
+        delayTime = parent.getDelay();
+
+        //Set the animation fade out length to the same duration as a time between steps
+        hardFadeOut = Clip.create(delayTime, hitStep, "opacity", 1f, 0f);
+        softFadeOut = Clip.create(delayTime, hitStep, "opacity", 0.3f, 0f);
+
+        add(step);
+        add(velocityStep);
+        add(hitStep);
 
 
-        stepGroup.add(step);
-        stepGroup.add(velocityStep);
+        hitStep.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
+        hitStep.setFillPaint(hitColor);
+        hitStep.setMode(SGShape.Mode.FILL);
+        hitStep.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
+        hitStep.setOpacity(0);
 
         velocityStep.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
-        velocityStep.setFillPaint(stepOnFillColor);
+        velocityStep.setFillPaint(vStepColor);
         velocityStep.setMode(SGShape.Mode.FILL);
         velocityStep.setAntialiasingHint(RenderingHints.VALUE_ANTIALIAS_ON);
-         velocityStep.addMouseListener(new StepHighLightListener(this));
 
 
         step.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
-        step.setFillPaint(stepOffFillColor);
+        step.setFillPaint(stepFillColor);
         step.setMode(SGShape.Mode.STROKE_FILL);
         step.setDrawStroke(new BasicStroke(1.0f));
         step.setDrawPaint(Color.GRAY);
@@ -75,25 +89,22 @@ public class Step {
 
     }
 
-    SGNode getStepShape() {
-        return stepGroup;
+    SGGroup getStepShape() {
+        return this;
     }
 
-    public void stepCountOn() {
-        Color newFillPaint;
-        int[] colorValues = new int[3];
-        colorValues[0] = Tools.constrain((currentFillColor.getRed() + stepCountColor.getRed()) / 2, 0, 255);
-        colorValues[1] = Tools.constrain((currentFillColor.getGreen() + stepCountColor.getGreen()) / 2, 0, 255);
-        colorValues[2] = Tools.constrain((currentFillColor.getBlue() + stepCountColor.getBlue()) / 2, 0, 255);
-        newFillPaint = new Color(colorValues[0], colorValues[1], colorValues[2], 255);
-        step.setFillPaint(newFillPaint);
+    public void hitCount() {
+        if (isAlive) {
+            hardFadeOut.start();
+        } else {
+            softFadeOut.start();
+        }
     }
 
     public void stepCountOff() {
-        step.setFillPaint(currentFillColor);
     }
 
-    public StepSequencer getParent() {
+    public StepSequencer getParentSequencer() {
         return parent;
     }
 
@@ -108,24 +119,17 @@ public class Step {
         float th = h - ty;
 
         velocityStep.setShape(new RoundRectangle2D.Float(tx, y + ty, tw, th, r, r));
-        velocityStep.setFillPaint(stepOnFillColor);
-        velocityStep.setOpacity(Tools.map(velocity, 0, 127, 0.3f, 1.0f));
+        velocityStep.setFillPaint(vStepColor);
+//        velocityStep.setOpacity(Tools.map(velocity, 0, 127, 0.3f, 1.0f));
 
         velocity = Tools.map(ty, 0f, h, 127.0f, 0.0f);
         updateParentVelocityArray(velocity);
     }
 
-    public void updateVelocityStepLevel(float ty) {
-
-        float tx = x;
-        float tw = w;
-        float th = h - ty;
-
-        velocityStep.setShape(new RoundRectangle2D.Float(tx, y + ty, tw, th, r, r));
-        velocityStep.setFillPaint(stepOnFillColor);
-        velocityStep.setOpacity(Tools.map(velocity, 0, 127, 0.3f, 1.0f));
-
-        velocity = Tools.map(ty, 0f, h, 127.0f, 0.0f);
+    public void updateVelocityStepLevel() {
+        velocityStep.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
+        velocityStep.setFillPaint(vStepColor);
+        velocityStep.setOpacity(Tools.constrain(Tools.map(velocity, 0, 127, 0.0f, 1.0f), 0.0f, 1.0f));   //sett opacity based on velocity
     }
 
     public void setVelocityToZero() {
@@ -142,12 +146,13 @@ public class Step {
     //update differs from set in that it doesn't update the parent array to avoid overflow
     public void updateVelocity(float f) {
         velocity = f;
-        velocity = Tools.constrain(velocity, 0, 127);
-        updateVelocityStepLevel(Tools.map(f, 0, 127, h, 0));
+
+        updateVelocityStepLevel();
+
     }
 
     public SGGroup getGroup() {
-        return stepGroup;
+        return this;
     }
 
     public float getVelocity() {
@@ -167,10 +172,9 @@ public class Step {
         isAlive = true;
         velocity = parent.getCurrentDefaultVelocity();
 
-
         velocityStep.setOpacity((float) Tools.map(velocity, 0, 127, 0.0, 1.0));
         velocityStep.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
-        velocityStep.setFillPaint(stepOnFillColor);
+        velocityStep.setFillPaint(vStepColor);
 
         updateParentVelocityArray(velocity);
     }
@@ -179,9 +183,19 @@ public class Step {
         isAlive = false;
         velocity = 0;
 
-        velocityStep.setFillPaint(new Color(0,0,0,0));
+        velocityStep.setOpacity(0);
 
         updateParentVelocityArray(velocity);
     }
 
+    public void setAlive(boolean b) {
+        isAlive = true;
+    }
+
+    public void setDelay(int d) {
+        delayTime = d;
+        //Set the animation fade out length to the same duration as a time between steps
+        hardFadeOut = Clip.create(delayTime, hitStep, "opacity", 1f, 0f);
+        softFadeOut = Clip.create(delayTime, hitStep, "opacity", 0.3f, 0f);
+    }
 }

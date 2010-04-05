@@ -10,6 +10,7 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.fx.FXShape;
 import java.awt.GradientPaint;
+import java.awt.geom.Rectangle2D;
 import scenariogui.Tools;
 
 public class FocusStep {
@@ -42,6 +43,7 @@ public class FocusStep {
     Color c2 = new Color(0,255,0,150);
     GradientPaint gc;
     private int stepID;
+    private int currentTrack;
 
     public FocusStep(StepSequencer s, double tx, double ty, double tw, double th, float tr, int i) {
         x = (float) tx;
@@ -57,7 +59,7 @@ public class FocusStep {
         stepGroup.add(step);
         stepGroup.add(velocityStep);
 
-        velocityStep.setShape(new RoundRectangle2D.Float(x, y, w, h, r, r));
+        velocityStep.setShape(new Rectangle2D.Float(x, y, w, h));
         velocityStep.setFillPaint(gc);
         velocityStep.setMode(SGShape.Mode.FILL);
         velocityStep.setOpacity(0.8f);
@@ -103,11 +105,11 @@ public class FocusStep {
         float tx = x;
         float tw = w;
         float th = h - ty;
-        velocityStep.setShape(new RoundRectangle2D.Float(tx, y + ty, tw, th, r, r));
+        velocityStep.setShape(new Rectangle2D.Float(tx, y + ty, tw, th));
         velocityStep.setFillPaint(gc);
         velocityStep.setOpacity(Tools.map(velocity, 0, 127, 0.4f, 0.8f));
 
-        velocity = Tools.map(ty, 0f, h, 127.0f, 0.0f);
+        velocity = Tools.map(ty, 0, h, 127.0f, 0.0f);
         parent.updateVelocityArray(stepID, velocity);
     }
 
@@ -132,5 +134,9 @@ public class FocusStep {
     public float getVelocityToUpdate() {
         float newVelocity = Tools.map(velocity, 127.0f, 0.0f, 0f, h);
         return newVelocity;
+    }
+
+    public void setCurrentTrack(int track) {
+        currentTrack = track;
     }
 }

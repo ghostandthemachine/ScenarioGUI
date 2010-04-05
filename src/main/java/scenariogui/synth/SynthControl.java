@@ -24,40 +24,36 @@ public class SynthControl extends GUIComponent {
     GUIButton trigger;
     SGText mainLabel = new SGText();
     ISynth synth;
-    float[] args;
     int dialWidth = 40;
     int padding = 10;
     int spacing = 15;
-    int numDials;
+    int nParams;
     SimpleDial[] dials;
 
     public SynthControl(ISynth synth) {
         super(0, 0, (40 * synth.getParams().length + 30), 100);
-        this.numDials = synth.getParams().length;
+        this.nParams = synth.getParams().length;
         this.synth = synth;
-        this.dials = new SimpleDial[numDials];
-        args = new float[numDials];
 
         this.setBaseColor(new Color(100, 100, 100));
 
-        createDials(numDials);
+        createDials();
         createButtons();
         addMainLabel(synth.getName());
 
-        this.setWidth(numDials * (dialWidth + spacing) + padding * 2);
+        this.setWidth(nParams * (dialWidth + spacing) + padding * 2);
     }
 
-    private void createDials(int numDials) {
+    private void createDials() {
+        dials = new SimpleDial[nParams];
         ISynthParameter[] params = synth.getParams();
 
-        for (int i = 0; i < numDials; i++) {
+        for (int i = 0; i < nParams; i++) {
             String name = params[i].getName();
-            SimpleDial dial = dials[i];
             int x = padding + (i * (dialWidth + spacing));
             int y = padding;
 
-            dial = new SimpleDial(name, x, y, dialWidth, this) {
-
+            SimpleDial dial = new SimpleDial(name, x, y, dialWidth, this) {
                 @Override
                 public void dragged() {
                     super.dragged();
@@ -68,10 +64,19 @@ public class SynthControl extends GUIComponent {
             dial.addLabel(name);
             dial.setRange(params[i].getStart(), params[i].getEnd());
             this.add(dial);
+            dials[i] = dial;
         }
 
 
 
+    }
+
+    float[] getParamVals() {
+      float[] vals = new float[nParams];
+      for(int i = 0; i < nParams; i++) {
+        vals[i] = dials[i].getValue();
+      }
+      return vals;
     }
 
     void createButtons() {
@@ -84,7 +89,8 @@ public class SynthControl extends GUIComponent {
             public void clicked() {
                 if (!this.isOn()) {
                     this.setOn();
-                    synth.play(args);
+
+                    synth.play(getParamVals());
                 } else {
                     this.setOff();
                     synth.kill();

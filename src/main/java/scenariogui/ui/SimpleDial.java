@@ -109,7 +109,7 @@ public class SimpleDial extends GUIComponent {
         theta = Tools.constrain(theta, -145, 145); //set constraints for dial rotation
         value = (float) Tools.map(theta, -145, 145, minValue, maxValue);
         rotate(Math.toRadians(theta));
-        displayValue(theta);
+        displayValue(value);
     }
 
     @Override

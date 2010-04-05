@@ -34,8 +34,8 @@ public class StepSequencer extends GUIComponent {
     private float plusWidth = 0;
     private float plusHeight = 0;
     private RoundRectangle2D.Double stepRect;
-    private int numTracks;
-    private int numSteps;
+    private int nTracks;
+    private int nCounts;
     private int count = 0;
     private int lastCount = 0;
     private boolean addSteps = false;
@@ -43,7 +43,7 @@ public class StepSequencer extends GUIComponent {
     private int currentFocussedTrack;
     private final float seqWidth;
     private final float seqHeight;
-    private float delay = 0;
+    private int delay = 0;
     private float bpm = 0;
     private int lastFocussedTrack;
     private int numPresets = 8;
@@ -58,6 +58,9 @@ public class StepSequencer extends GUIComponent {
     private float hardVelocity = 120;
     private float currentDefaultVelocity = mediumVelocity;
     private boolean removeSteps = false;
+    private final int nSteps;
+    private double focusTrackHeight;
+    private boolean focusMode = false;
 
     public StepSequencer(float tx, float ty, float tw, float th, float tsteps, float ttracks, float xstep, float ystep, float plusw, float plush) {
         super(tx, ty, tw, th);
@@ -65,8 +68,9 @@ public class StepSequencer extends GUIComponent {
         r = ((tw - 4) / tsteps) / 4;
         setBaseColor(new Color(50, 50, 50));
 
-        numSteps = (int) tsteps;
-        numTracks = (int) ttracks;
+        nCounts = (int) tsteps;
+        nTracks = (int) ttracks;
+        nSteps = nCounts * nTracks;
 
         seqWidth = tw;
         seqHeight = th;
@@ -78,23 +82,23 @@ public class StepSequencer extends GUIComponent {
 
         currentFocussedTrack = 0;
 
-        velocities = new float[numPresets][numTracks][numSteps];
+        velocities = new float[numPresets][nTracks][nCounts];
 
         base.setShape(new RoundRectangle2D.Float(0, 0, tw + plusWidth, th + plusHeight, r, r));
         base.setFillPaint(this.getBaseColor());
         base.setMode(SGShape.Mode.FILL);
         this.setBaseShape(base);
 
-        trackLocations = new double[numTracks][2];
+        trackLocations = new double[nTracks][2];
 
-        stepGroup = new Step[numTracks][numSteps];
+        stepGroup = new Step[nTracks][nCounts];
 
-        sw = ((tw - 4) / numSteps) + yStepOffset - 3;
-        sh = ((th - 4) / numTracks) - 3;
-        sr = ((tw - 4) / numSteps) / 4;
+        sw = ((tw - 4) / nCounts) + yStepOffset - 3;
+        sh = ((th - 4) / nTracks) - 3;
+        sr = ((tw - 4) / nCounts) / 4;
 
-        for (int track = 0; track < numTracks; track++) {
-            for (int step = 0; step < numSteps; step++) {
+        for (int track = 0; track < nTracks; track++) {
+            for (int step = 0; step < nCounts; step++) {
 
                 double sx = 3.5 + (step * sw) + tx + xStepOffset + (step * 3);
                 double sy = 3.5 + (track * sh) + ty + (track * 3);
@@ -103,7 +107,7 @@ public class StepSequencer extends GUIComponent {
 
                 stepGroup[track][step] = new Step(this, sx, sy, sw, sh, sr, trackId, stepId);
                 stepGroup[track][step].setVelocityToZero();
-                steps.add(stepGroup[track][step].getStepShape());
+                steps.add(stepGroup[track][step]);
 
 
             }
@@ -119,13 +123,14 @@ public class StepSequencer extends GUIComponent {
     }
 
     public void createFocusTracks() {
-        focusStepGroup = new FocusStep[numSteps];
-        float tempW = (float) ((this.getWidth()) / numSteps);
-        for (int i = 0; i < numSteps; i++) {
+        focusStepGroup = new FocusStep[nCounts];
+        float tempW = (float) ((this.getWidth()) / nCounts);
+        for (int i = 0; i < nCounts; i++) {
             double fsx = 3.5 + (i * sw) + this.getX() + xStepOffset + (i * 3);
             double fsy = 3.5 + this.getY();
             double fsw = sw;
             double fsh = this.getHeight() - 6;
+            focusTrackHeight = fsh;
 
             focusStepGroup[i] = new FocusStep(this, fsx, fsy, fsw, fsh, sr, i);
             focusTracks.add(focusStepGroup[i].getStepShape());
@@ -154,14 +159,14 @@ public class StepSequencer extends GUIComponent {
     }
 
     public void stepCountOn(int count) {
-        for (int i = 0; i < numTracks; i++) {
-            stepGroup[i][count].stepCountOn();
+        for (int i = 0; i < nTracks; i++) {
+            stepGroup[i][count].hitCount();
             focusStepGroup[count].stepCountOn();
         }
     }
 
     public void stepCountOff(int count) {
-        for (int i = 0; i < numTracks; i++) {
+        for (int i = 0; i < nTracks; i++) {
             stepGroup[i][count].stepCountOff();
             focusStepGroup[count].stepCountOff();
         }
@@ -221,6 +226,16 @@ public class StepSequencer extends GUIComponent {
         this.yStepOffset = yStepOffset;
     }
 
+    public boolean isFocusMode() {
+        return focusMode;
+    }
+
+    public void setIsFocusMode(boolean isFocusMode) {
+        this.focusMode = isFocusMode;
+    }
+
+
+
     public void setCurrentFocussedTrack(int i) {
         currentFocussedTrack = i;
         System.out.println(i);
@@ -229,31 +244,42 @@ public class StepSequencer extends GUIComponent {
     public void increaseCount() {
         lastCount = count;
         count++;
-        stepCountOff(lastCount % numSteps);
-        stepCountOn(count % numSteps);
-        count = count % numSteps;
+        stepCountOff(lastCount % nCounts);
+        stepCountOn(count % nCounts);
+        count = count % nCounts;
     }
 
     public void setCount(int i) {
         lastCount = count;
         count = i;
-        stepCountOff(lastCount % numSteps);
-        stepCountOn(count % numSteps);
-        count = count % numSteps;
+        stepCountOff(lastCount % nCounts);
+        stepCountOn(count % nCounts);
+        count = count % nCounts;
     }
 
     public int getCount() {
         return count;
     }
 
-    public void setDelay(int i) {
-        timer.setDelay(i);
+    public void setDelay(int d) {
+        delay = d;
+        timer.setDelay(delay);
+
+        for (int i = 0; i < nTracks; i++) {
+            for (int j = 0; j < nCounts; j++) {
+                stepGroup[i][j].setDelay(delay);
+            }
+        }
+    }
+
+    public int getDelay() {
+        return delay;
     }
 
     public void setBpm(float i) {
-        delay = (1 / i) * 60000;
+        delay = (int) ((1 / i) * 60000);
         bpm = i;
-        timer.setDelay((int) delay);
+        this.setDelay(delay);
     }
 
     public void setResolution(int i) {
@@ -286,38 +312,9 @@ public class StepSequencer extends GUIComponent {
 
     public void selectFocusTrack(int i) {
         this.removeComponent(steps);
+        this.setFocussedTrack(i);
         this.showFocusTracks(i);
-        currentFocussedTrack = i;
-    }
 
-    private void showFocusTracks(int i) {
-        updateFocussedTrack(i);
-        this.addComponent(focusTracks);
-    }
-
-    public void unfocusTrack(int i) {
-        this.removeComponent(focusTracks);
-        this.updateStepVelocities();
-        this.addComponent(steps);
-    }
-
-    public void updateFocussedTrack(int track) {
-        for (int i = 0; i < numSteps; i++) {
-            focusStepGroup[i].setVelocityStepLevel(Tools.map(stepGroup[track][i].getVelocity(), 0f, 127f, (float) focusStepGroup[i].getStepShape().getBounds().getHeight(), 0f));
-        }
-    }
-
-    public void updateStepVelocities() {
-        printVelocityArray();
-        for (int track = 0; track < numTracks; track++) {
-            for (int step = numSteps; step < numSteps; step++) {
-                stepGroup[track][step].updateVelocity(velocities[currentPreset][track][step]);
-            }
-        }
-    }
-
-    public float getBpm() {
-        return bpm;
     }
 
     void setLastFocussedTrack(int id) {
@@ -333,8 +330,36 @@ public class StepSequencer extends GUIComponent {
         return lastFocussedTrack;
     }
 
-    private float getDelay() {
-        return delay;
+    private void showFocusTracks(int i) {
+        updateFocussedTrack(i);
+        this.add(focusTracks);
+    }
+
+    public void unfocusTrack(int i) {
+        this.remove(focusTracks);
+        this.updateStepVelocities();
+        this.add(steps);
+    }
+
+    public void updateFocussedTrack(int track) {
+        for (int i = 0; i < nCounts; i++) {
+            focusStepGroup[i].setVelocityStepLevel(Tools.map(stepGroup[track][i].getVelocity(), 0f, 127f, (float) focusStepGroup[i].getStepShape().getBounds().getHeight(), 0f));
+        }
+    }
+
+    public void updateStepVelocities() {
+        for (int track = 0; track < nTracks; track++) {
+            for (int step = 0; step < nCounts; step++) {
+                stepGroup[track][step].updateVelocity(velocities[currentPreset][track][step]);
+                if(velocities[currentPreset][track][step] > 0) {
+                    stepGroup[track][step].setAlive(true);
+                }
+            }
+        }
+    }
+
+    public float getBpm() {
+        return bpm;
     }
 
     void updateVelocityArray(int trackID, int stepID, float velocity) {
@@ -343,14 +368,13 @@ public class StepSequencer extends GUIComponent {
 
     void updateVelocityArray(int stepID, float velocity) {
         velocities[currentPreset][currentFocussedTrack][stepID] = velocity;
-        //   System.out.println(currentPreset + "  " + currentFocussedTrack + "  " + stepID + "  velocity  = " + velocity);
     }
 
     private void printVelocityArray() {
-        System.out.println("the current preset is :" + currentPreset);
-        for (int i = 0; i < numTracks; i++) {
-            for (int j = 0; j < numSteps; j++) {
-                System.out.print("t: " + i + "  s: " + j + " " + velocities[currentPreset][i][j] + " - ");
+        System.out.println("the current track is :" + currentFocussedTrack);
+        for (int i = 0; i < nTracks; i++) {
+            for (int j = 0; j < nCounts; j++) {
+                System.out.print("[ " + velocities[currentPreset][i][j] + " - " + stepGroup[i][j].getVelocity() + "  -  o = " + stepGroup[i][j].velocityStep.getOpacity() +" ]");
             }
             System.out.println();
         }
@@ -366,6 +390,14 @@ public class StepSequencer extends GUIComponent {
 
     void setRemoveSteps(boolean b) {
         removeSteps = b;
+    }
+
+    void setCurrentTrack(int id) {
+        currentFocussedTrack = id;
+    }
+
+    float getVelocty(int i, int trackID, int stepID) {
+        return velocities[i][trackID][stepID];
     }
 }
 

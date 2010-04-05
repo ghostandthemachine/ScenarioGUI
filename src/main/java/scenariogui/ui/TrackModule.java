@@ -41,7 +41,7 @@ public class TrackModule extends GUIComponent {
 
         dial1 = new SimpleDial("shit", 80, 0, 20, this);
 
-        group.add(dial1.getComponentGroup());
+        group.add(dial1);
         
         group.add(comp);
 

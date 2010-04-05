@@ -5,13 +5,16 @@
 
 package scenariogui.ui.notesequencer;
 
+import com.sun.scenario.scenegraph.SGGroup;
 import com.sun.scenario.scenegraph.fx.FXShape;
+import java.awt.geom.Rectangle2D;
+import scenariogui.ui.GUIComponent;
 
 /**
  *
  * @author Jon
  */
-public class AdvancedNoteSequencer {
+public class AdvancedNoteSequencer extends GUIComponent{
 
     private double x;
     private double y;
@@ -21,10 +24,15 @@ public class AdvancedNoteSequencer {
     private int noteSize = 8;
 
     private FXShape baseShape = new FXShape();
+    NoteTrack track;
 
         public AdvancedNoteSequencer(double tx, double ty) {
+            super(tx,ty,400,200);
             x = tx;
             y = ty;
+
+            track = new NoteTrack(this, x + 10, y + 10, 0);
+            this.add(track);
 
 
         }

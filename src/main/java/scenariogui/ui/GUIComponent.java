@@ -14,6 +14,7 @@ import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.SGTransform;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
+import com.sun.scenario.scenegraph.fx.FXGroup;
 import com.sun.scenario.scenegraph.fx.FXShape;
 import java.awt.Color;
 import java.awt.RenderingHints;
@@ -27,7 +28,7 @@ import java.awt.geom.RoundRectangle2D;
  *
  * @author jon rose
  */
-public class GUIComponent extends SGGroup {
+public class GUIComponent extends FXGroup {
 
     GUIComponent parent = null;
     private double x;
@@ -170,7 +171,7 @@ public class GUIComponent extends SGGroup {
      *
      * @return
      */
-    public SGGroup getComponentGroup() {
+    public FXGroup getComponentGroup() {
 
         return this;
     }

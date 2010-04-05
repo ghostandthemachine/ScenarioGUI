@@ -11,7 +11,6 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
-import scenariogui.Tools;
 
 /**
  *
@@ -19,13 +18,15 @@ import scenariogui.Tools;
  */
 public class StepMouseListener implements SGMouseListener {
 
-    public Step parent;
+    private Step parentStep;
+    private StepSequencer parentSeq;
     Point2D p;
     private boolean create = false;
     private boolean over = false;
 
     public StepMouseListener(Step c) {
-        parent = c;
+        parentStep = c;
+        parentSeq = parentStep.getParentSequencer();
     }
 
     @Override
@@ -34,16 +35,17 @@ public class StepMouseListener implements SGMouseListener {
 
     @Override
     public void mousePressed(MouseEvent me, SGNode sgnode) {
-        if (parent.isAlive()) {
-            System.out.println("fwww");
-            parent.getParent().setRemoveSteps(true);
-            parent.getParent().setAddSteps(false);
-            parent.setStepOff();
+        if (parentStep.isAlive()) {
+            parentSeq.setRemoveSteps(true);
+            parentSeq.setAddSteps(false);
+            parentStep.setStepOff();
 
-        } else if(!parent.isAlive()){
-            parent.getParent().setRemoveSteps(false);
-            parent.getParent().setAddSteps(true);
-            parent.setStepOn();
+        } else if (!parentStep.isAlive()) {
+            System.out.println("turn on this step");
+
+            parentSeq.setRemoveSteps(false);
+            parentSeq.setAddSteps(true);
+            parentStep.setStepOn();
 
         }
 
@@ -51,8 +53,8 @@ public class StepMouseListener implements SGMouseListener {
 
     @Override
     public void mouseReleased(MouseEvent me, SGNode sgnode) {
-        parent.getParent().setAddSteps(false);
-        parent.getParent().setRemoveSteps(false);
+        parentSeq.setAddSteps(false);
+        parentSeq.setRemoveSteps(false);
     }
 
     @Override
@@ -61,11 +63,10 @@ public class StepMouseListener implements SGMouseListener {
         FXShape node = (FXShape) sgnode;
         node.setDrawPaint(Color.lightGray);
 
-        System.out.println(parent.getParent().getRemoveSteps());
-        if (parent.getParent().getAddSteps()) {
-            parent.setStepOn();
-        } else if (parent.getParent().getRemoveSteps()) {
-            parent.setStepOff();
+        if (parentSeq.getAddSteps()) {
+            parentStep.setStepOn();
+        } else if (parentSeq.getRemoveSteps()) {
+            parentStep.setStepOff();
         }
     }
 

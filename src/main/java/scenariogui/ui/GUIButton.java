@@ -8,6 +8,7 @@ import com.sun.scenario.scenegraph.SGGroup;
 import com.sun.scenario.scenegraph.SGNode;
 import com.sun.scenario.scenegraph.SGShape;
 import com.sun.scenario.scenegraph.event.SGMouseListener;
+import com.sun.scenario.scenegraph.fx.FXGroup;
 import com.sun.scenario.scenegraph.fx.FXShape;
 import java.awt.Color;
 import java.awt.RenderingHints;
@@ -62,7 +63,7 @@ public class GUIButton extends GUIComponent {
     }
 
     @Override
-    public SGGroup getComponentGroup() {
+    public FXGroup getComponentGroup() {
         return this;
     }
 
